@@ -2,10 +2,10 @@ import os
 from threading import Thread
 
 def startServer():
-    os.system('python -m http.server')
+    os.system('python -m http.server --d webpage')
 
 def startWebpage():
-    os.system('python webpage.py')
+    os.system('python webpage/webpage.py')
 def startLib():
     os.system('python libInterface.py')
 

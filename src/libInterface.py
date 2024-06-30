@@ -123,8 +123,11 @@ def loc_loop():
             elif option == 1:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Collect', 1)
-                
-                noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+
+                if person[0] + '&' + person[1] in borrowList:
+                    noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+                else:
+                    noOfBorrowed = 0
                 tempList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
                 borrowList = collection.combineList(borrowList, tempList)
                 print('borrowed', borrowList)
