@@ -1,33 +1,25 @@
-#NOT TESTED YET
-
-import cv2
+from picamera import PiCamera
+from time import sleep
+from PIL import Image
 from pyzbar.pyzbar import decode
 
-from picamera2 import MappedArray, Picamera2, Preview
+def capture_image(file_path):
+    camera = PiCamera()
+    camera.start_preview()
+    sleep(2)  # Give the camera some time to adjust to lighting
+    camera.capture(file_path)
+    camera.stop_preview()
+    camera.close()
 
-colour = (0, 255, 0)
-font = cv2.FONT_HERSHEY_SIMPLEX
-scale = 1
-thickness = 2
+def read_barcode(file_path):
+    image = Image.open(file_path)
+    barcodes = decode(image)
+    for barcode in barcodes:
+        barcode_data = barcode.data.decode('utf-8')
+        barcode_type = barcode.type
+        print(f'Found {barcode_type} barcode: {barcode_data}')
 
-
-def draw_barcodes(request):
-    with MappedArray(request, "main") as m:
-        for b in barcodes:
-            if b.polygon:
-                x = min([p.x for p in b.polygon])
-                y = min([p.y for p in b.polygon]) - 30
-                cv2.putText(m.array, b.data.decode('utf-8'), (x, y), font, scale, colour, thickness)
-
-
-picam2 = Picamera2()
-picam2.start_preview(Preview.QTGL)
-config = picam2.create_preview_configuration(main={"size": (1280, 960)})
-picam2.configure(config)
-
-barcodes = []
-picam2.post_callback = draw_barcodes
-picam2.start()
-while True:
-    rgb = picam2.capture_array("main")
-    barcodes = decode(rgb)
+if __name__ == "__main__":
+    image_path = 'barcode_image.jpg'
+    capture_image(image_path)
+    read_barcode(image_path)

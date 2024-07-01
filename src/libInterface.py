@@ -9,6 +9,7 @@ import parseBooklist
 import collection
 import removeBorrowed
 import returnBook
+import extendTime
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
@@ -145,6 +146,7 @@ def loc_loop():
                         returnBook.displayBorrowed(borrowList, person)
                     tempList = returnBook.returnBook(returnIndex, borrowList, person)
                     returnList = collection.combineList(returnList, tempList)
+
                     print('returned', returnList)
                     borrowList = removeBorrowed.remove(borrowList, tempList)
                     print('borrowed', borrowList)
@@ -159,7 +161,19 @@ def loc_loop():
             elif option == 3:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Extend', 1)
+                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
+                    returnIndex = []
+                    while(password != '*'): 
+                        extendTime.display(borrowList, person)
+                    print(returnIndex)
+                    borrowList = extendTime.extend(returnIndex, borrowList, person)
+                    
+                    print('borrowed', borrowList)
                 
+                else:
+                    lcd.lcd_display_string('No book borrowed', 1)
+                
+                password = 0
                 session = 0
                 option = 0
 

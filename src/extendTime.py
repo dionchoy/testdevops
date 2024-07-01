@@ -17,15 +17,16 @@ def key_pressed(key):
     print(password)
     returnIndex.append(password)
 
-def extend(borrowList, person):
+def extend(returnIndex, borrowList, person):
     returnIndex.remove('*')
-    tempList = parseBooklist.getReserve(borrowList, person)
+    info = person[0] + '&' + person[1]
+    borrowList[info]
     
     for index in returnIndex:
-        tempList[int(index)-1][1] = tempList[int(index)-1][1].replace(getMin(tempList[int(index)-1][1]), str(int(getMin(tempList[int(index)-1][1]))+7))
-        tempList[int(index)-1][1] += 'E'
+        borrowList[info][int(index)-1][1] = borrowList[info][int(index)-1][1].replace(getMin(borrowList[info][int(index)-1][1]), str(int(getMin(borrowList[info][int(index)-1][1]))+7))
+        borrowList[info][int(index)-1][1] += 'E'
 
-    return tempList
+    return borrowList
 
 def display(borrowList, person):
     displayList = parseBooklist.getReserve(borrowList, person)
@@ -58,9 +59,7 @@ def main():
         display(egBorrowlist, person)
     print(returnIndex)
     
-    print(extend(egBorrowlist, person))
-    
-    
+    print(extend(returnIndex, egBorrowlist, person))
 
 if __name__ == "__main__":
     main()
