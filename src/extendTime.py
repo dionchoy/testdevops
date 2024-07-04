@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta
 from threading import Thread
 from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
@@ -23,7 +24,11 @@ def extend(returnIndex, borrowList, person):
     borrowList[info]
     
     for index in returnIndex:
-        borrowList[info][int(index)-1][1] = borrowList[info][int(index)-1][1].replace(getMin(borrowList[info][int(index)-1][1]), str(int(getMin(borrowList[info][int(index)-1][1]))+7))
+        borrowDate = datetime.strptime(borrowList[info][int(index)-1][1], '%Y-%m-%d %H:%M:%S')
+        newDate = borrowDate + timedelta(minutes=7)
+        newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S')
+
+        borrowList[info][int(index)-1][1] = newDate
         borrowList[info][int(index)-1][1] += 'E'
 
     return borrowList
@@ -60,6 +65,6 @@ def main():
     print(returnIndex)
     
     print(extend(returnIndex, egBorrowlist, person))
-
+    
 if __name__ == "__main__":
     main()

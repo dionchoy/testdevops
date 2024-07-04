@@ -19,7 +19,11 @@ def read_barcode(file_path):
         barcode_type = barcode.type
         print(f'Found {barcode_type} barcode: {barcode_data}')
 
-if __name__ == "__main__":
+def main():
     image_path = 'barcode_image.jpg'
     capture_image(image_path)
     read_barcode(image_path)
+
+
+if __name__ == "__main__":
+    main()
