@@ -1,6 +1,6 @@
-FROM python:3.8-slim-buster
+FROM python:3.11-slim-buster
 
-WORKDIR /flask-app
+WORKDIR /src
 
 COPY requirements.txt .
 
@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt
 
 COPY ./app ./app 
 
-CMD ["python", "./app/app.py"]
+CMD ["python", "./webpage/webpage.py"]
