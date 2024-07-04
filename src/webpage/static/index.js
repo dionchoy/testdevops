@@ -17,7 +17,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     .then(data => {
         if (data.success) {
             // Redirect to main.html after successful login
-            window.location.href = 'main.html';
+            window.location.href = "main";
         } else {
             alert('Login failed: ' + data.message);
         }
