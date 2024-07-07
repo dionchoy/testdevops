@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testlib
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: testlib
+  template:
+    metadata:
+      labels:
+        app: testlib
+    spec:
+      containers:
+      - name: testlib
+        image: dionchoy/testlib:latest
+        ports:
+        - containerPort: 5000
