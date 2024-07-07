@@ -24,12 +24,13 @@ def extend(returnIndex, borrowList, person):
     borrowList[info]
     
     for index in returnIndex:
-        borrowDate = datetime.strptime(borrowList[info][int(index)-1][1], '%Y-%m-%d %H:%M:%S')
-        newDate = borrowDate + timedelta(minutes=7)
-        newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S')
+        if index <= len(borrowList[info] and index > 0):
+            borrowDate = datetime.strptime(borrowList[info][int(index)-1][1], '%Y-%m-%d %H:%M:%S')
+            newDate = borrowDate + timedelta(minutes=7)
+            newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S')
 
-        borrowList[info][int(index)-1][1] = newDate
-        borrowList[info][int(index)-1][1] += 'E'
+            borrowList[info][int(index)-1][1] = newDate
+            borrowList[info][int(index)-1][1] += 'E'
 
     return borrowList
 
