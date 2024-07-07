@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import csv
 import os
+import readBooklist
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -94,18 +95,15 @@ def reserve():
 
     print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
-    booklist.setdefault(info, [])
-    
-    if len(booklist[info]) < 10:
-        booklist[info].append([book_title, location, dateTime])
-        print(booklist)
-    else:
-        return jsonify({'success': False})
+
+    readBooklist.addBook(info, book_title, location, dateTime)
 
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
+    booklist = readBooklist.loadBooks()
+    print(booklist)
     return jsonify(booklist)
 
 @app.route('/')
