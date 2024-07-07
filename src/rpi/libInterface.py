@@ -2,7 +2,7 @@ from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from hal import hal_dc_motor as dc_motor
 from threading import Thread
-import lib_loc as library
+import lib_loc
 import time
 import getBooklist
 import parseBooklist
@@ -103,7 +103,7 @@ def loc_loop():
     option = 0
     
     while(True):
-        userLoc = library.get_loc()
+        userLoc = lib_loc.get_loc()
         setup(userLoc)
 
         if password == '*':
