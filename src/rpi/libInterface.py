@@ -192,9 +192,9 @@ def getList():
     global borrowList
     checkChange = {}
     while(True):
-        bookList = getBooklist.getReserve()
-        bookList = removeBorrowed.remove(bookList, borrowList)
-        bookList = removeBorrowed.remove(bookList, returnList)
+        data = getBooklist.getReserve()
+        bookList = data[0]
+        borrowList = data[1]
         if bookList != checkChange:
             print(bookList)
             checkChange = bookList
