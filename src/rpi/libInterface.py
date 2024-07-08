@@ -17,12 +17,12 @@ dc_motor.init()
 returnIndex = []
 
 def key_pressed(key):
-    global userInput
+    global password
     global returnIndex
-    userInput = key
+    password = key
 
-    print(userInput)
-    returnIndex.append(userInput)
+    print(password)
+    returnIndex.append(password)
     print(returnIndex)
 
 def setup(location):
@@ -33,7 +33,7 @@ def setup(location):
 
 def auth():
     global bookList
-    global userInput
+    global password
 
     verified = False
     restart = True
@@ -45,7 +45,7 @@ def auth():
 
     while(restart == True and attmps < 10):
         nameList = parseBooklist.getNameList(bookList)
-        userInput = 0
+        password = 0
         adminNo = '1234567' #replace with camera
         response = parseBooklist.findPerson(nameList, adminNo)
         verified = response[0]
@@ -65,7 +65,7 @@ def auth():
             lcd.lcd_display_string("Please press '#'", 1)
             lcd.lcd_display_string(output, 2)
             attmps += 1
-            while(userInput != '#'):  
+            while(password != '#'):  
                 restart = True
    
             if attmps == 10:
@@ -73,7 +73,7 @@ def auth():
                 return [False]
 
 def pageOptions():
-    global userInput
+    global password
     option = 0
 
     while(option<1 or option>4):
@@ -88,12 +88,12 @@ def pageOptions():
         lcd.lcd_clear()
         lcd.lcd_display_string('Extend press 3', 1)
         lcd.lcd_display_string('Pay fine press 4', 2)
-        option = userInput
+        option = password
 
     return option
 
 def loc_loop():
-    global userInput
+    global password
     global borrowList
     global returnList
     global returnIndex
@@ -106,7 +106,7 @@ def loc_loop():
         userLoc = lib_loc.get_loc()
         setup(userLoc)
 
-        if userInput == '*':
+        if password == '*':
             session = 1
             print(userLoc)
             authenticate = auth()
@@ -141,7 +141,7 @@ def loc_loop():
                 lcd.lcd_display_string('Return', 1)
                 if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
                     returnIndex = []
-                    while(userInput != '*'): 
+                    while(password != '*'): 
                         print(returnIndex)
                         returnBook.displayBorrowed(borrowList, person)
                     tempList = returnBook.returnBook(returnIndex, borrowList, person)
@@ -154,7 +154,7 @@ def loc_loop():
                 else:
                     lcd.lcd_display_string('No book borrowed', 1)
                 
-                userInput = 0
+                password = 0
                 session = 0
                 option = 0
 
@@ -163,7 +163,7 @@ def loc_loop():
                 lcd.lcd_display_string('Extend', 1)
                 if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
                     returnIndex = []
-                    while(userInput != '*'): 
+                    while(password != '*'): 
                         extendTime.display(borrowList, person)
                     print(returnIndex)
                     borrowList = extendTime.extend(returnIndex, borrowList, person)
@@ -173,7 +173,7 @@ def loc_loop():
                 else:
                     lcd.lcd_display_string('No book borrowed', 1)
                 
-                userInput = 0
+                password = 0
                 session = 0
                 option = 0
 
@@ -200,8 +200,8 @@ def getList():
             checkChange = bookList
 
 def main():
-    global userInput
-    userInput = ''
+    global password
+    password = ''
     keypad.init(key_pressed)
 
     keypad_thread = Thread(target=keypad.get_key)
