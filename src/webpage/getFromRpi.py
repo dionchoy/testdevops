@@ -1,5 +1,6 @@
 import requests
 import readWriteBooks
+import time
 
 BASE_URL = 'http://192.168.50.170:5001'
 
@@ -18,13 +19,18 @@ def getReserve():
                 for book in bookList[info]:
                     readWriteBooks.removeBook(info, book[0])
 
+    except KeyboardInterrupt:
+        exit()
+
     except:
         return [{}, {}]
     
     return bookList
 
 def main():
-    print(getReserve())
+    while(True):
+        print(getReserve())
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()

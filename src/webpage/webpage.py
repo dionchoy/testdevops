@@ -6,7 +6,7 @@ import csv
 import os
 import readWriteBooks
 from threading import Thread
-import requests
+import time
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -106,7 +106,6 @@ def reserve():
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
     booklist = readWriteBooks.loadBooks()
-    print(booklist)
     return jsonify(booklist)
 
 @app.route('/')
@@ -125,5 +124,15 @@ def main():
 def about():
     return render_template('about.html')
 
-if __name__ == '__main__':
+def run():
     app.run(host='0.0.0.0', port=5000)
+
+if __name__ == '__main__':
+    webthread = Thread(target=run, daemon=True)
+    webthread.start()
+
+    try:
+        while(True):
+            time.sleep(1000)
+    except KeyboardInterrupt:
+        exit(0)
