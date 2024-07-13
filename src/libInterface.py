@@ -2,6 +2,7 @@ from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from hal import hal_dc_motor as dc_motor
 from threading import Thread
+from flask import Flask
 import lib_loc
 import time
 import getBooklist
@@ -15,6 +16,8 @@ lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
 returnIndex = []
+
+app = Flask(__name__)
 
 def key_pressed(key):
     global password
@@ -45,6 +48,9 @@ def auth():
 
     while(restart == True and attmps < 10):
         nameList = parseBooklist.getNameList(bookList)
+        tempList = parseBooklist.getNameList(borrowList)
+        for i in tempList:
+            nameList.append(i)
         password = 0
         adminNo = '1234567' #replace with camera
         response = parseBooklist.findPerson(nameList, adminNo)
@@ -94,11 +100,14 @@ def pageOptions():
 
 def loc_loop():
     global password
+    global bookList
     global borrowList
     global returnList
     global returnIndex
-    borrowList = {}
+    global fineList
+    global toReturnList
     returnList = {}
+    toReturnList = {}
     session = 0
     option = 0
     
@@ -124,31 +133,38 @@ def loc_loop():
             elif option == 1:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Collect', 1)
-
-                if person[0] + '&' + person[1] in borrowList:
-                    noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+                time.sleep(0.5)
+                if person[0] + '&' + person[1] in bookList and len(bookList[person[0] + '&' + person[1]]) > 0:
+                    if person[0] + '&' + person[1] in borrowList:
+                        noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+                    else:
+                        noOfBorrowed = 0
+                    toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+                    print('borrowed', toReturnList)
+                
                 else:
-                    noOfBorrowed = 0
-                tempList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-                borrowList = collection.combineList(borrowList, tempList)
-                print('borrowed', borrowList)
+                    lcd.lcd_display_string('No book reserved', 1)
                 
                 session = 0
                 option = 0
+                returnIndex = []
 
             elif option == 2:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Return', 1)
+                time.sleep(0.5)
                 if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
                     returnIndex = []
                     while(password != '*'): 
                         print(returnIndex)
                         returnBook.displayBorrowed(borrowList, person)
-                    tempList = returnBook.returnBook(returnIndex, borrowList, person)
-                    returnList = collection.combineList(returnList, tempList)
+                        lcd.lcd_display_string('Press * to      ', 1)
+                        lcd.lcd_display_string('continue', 2)
+                        time.sleep(0.5)
+                    toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
 
                     print('returned', returnList)
-                    borrowList = removeBorrowed.remove(borrowList, tempList)
+                    borrowList = removeBorrowed.remove(borrowList, toReturnList)
                     print('borrowed', borrowList)
                 
                 else:
@@ -157,16 +173,22 @@ def loc_loop():
                 password = 0
                 session = 0
                 option = 0
+                returnIndex = []
 
             elif option == 3:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Extend', 1)
+                time.sleep(0.5)
                 if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
                     returnIndex = []
                     while(password != '*'): 
                         extendTime.display(borrowList, person)
+                        lcd.lcd_display_string('Press * to      ', 1)
+                        lcd.lcd_display_string('continue', 2)
+                        time.sleep(0.5)
                     print(returnIndex)
                     borrowList = extendTime.extend(returnIndex, borrowList, person)
+                    toReturnList = borrowList
                     
                     print('borrowed', borrowList)
                 
@@ -176,13 +198,16 @@ def loc_loop():
                 password = 0
                 session = 0
                 option = 0
+                returnIndex = []
 
             elif option == 4:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Pay Fine', 1)
+                time.sleep(0.5)
                 
                 session = 0
                 option = 0
+                returnIndex = []
         
             lcd.lcd_clear()
         
@@ -190,14 +215,25 @@ def loc_loop():
 def getList():
     global bookList
     global borrowList
-    checkChange = {}
+    global fineList
+    checkChangeReserve = {}
+    checkChangeBorrow = {}
+    checkChangeFine = {}
     while(True):
         data = getBooklist.getReserve()
         bookList = data[0]
         borrowList = data[1]
-        if bookList != checkChange:
-            print(bookList)
-            checkChange = bookList
+        fineList = getBooklist.getFine()
+
+        if bookList != checkChangeReserve:
+            print('reserve: ', bookList)
+            checkChangeReserve = bookList
+        if borrowList != checkChangeBorrow:
+            print('borrow: ',borrowList)
+            checkChangeBorrow = borrowList
+        if fineList != checkChangeFine:
+            print('fines: ',fineList)
+            checkChangeFine = fineList
 
 def main():
     global password
@@ -212,7 +248,17 @@ def main():
 
     book_thread = Thread(target=getList)
     book_thread.start()
-    
+
+    webthread = Thread(target=run)
+    webthread.start()
+
+@app.route('/', methods=['GET'])
+def about():
+    global toReturnList
+    return toReturnList
+
+def run():
+    app.run(host='0.0.0.0', port=5001)
 
 if __name__ == '__main__':
     main()
