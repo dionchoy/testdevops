@@ -2,11 +2,10 @@ from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
-import csv
-import os
+import userPasswordFine
 import readWriteBooks
+from getFromRpi import getReserve
 from threading import Thread
-import time
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -16,39 +15,19 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-def load_passwords():
-    passwords = {}
-    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    with open(file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            passwords[row['username']] = row['password']
-    return passwords
-
-def createAcc(username, password):
-    global passwords
-    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    with open(file_path, 'a', newline='') as csvfile:
-        fieldnames = ['username', 'password']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        if csvfile.tell() == 0:
-            writer.writeheader()
-        writer.writerow({'username': username, 'password': password})
-    
-    passwords = load_passwords()
-
-passwords = load_passwords()
+passwords = userPasswordFine.load_passwords()
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    identity = data.get('identity')
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
     password = data.get('password')
     user = data.get('user')
     
     if identity in passwords and passwords[identity] == password:
-        session['identity'] = identity
+        session['identity'] = admNo
         session['name'] = user
         return jsonify({'success': True})
     else:
@@ -68,14 +47,18 @@ def logout():
 
 @app.route('/signup', methods=['POST'])
 def signup():
+    global passwords
     data = request.get_json()
-    identity = data.get('identity')
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
     password = data.get('password')
 
     if identity in passwords:
         return jsonify({'success': False, 'message': 'Admin No. already used'})
     
-    createAcc(identity, password)
+    userPasswordFine.createAcc(identity, password) 
+    passwords = userPasswordFine.load_passwords()
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
 
@@ -108,6 +91,12 @@ def get_reservations():
     booklist = readWriteBooks.loadBooks()
     return jsonify(booklist)
 
+@app.route('/fines', methods=['GET'])
+def get_fines():
+    getReserve('http://192.168.50.170:5001')
+    fineList = userPasswordFine.loadFine()
+    return jsonify(fineList)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -124,15 +113,5 @@ def main():
 def about():
     return render_template('about.html')
 
-def run():
-    app.run(host='0.0.0.0', port=5000)
-
 if __name__ == '__main__':
-    webthread = Thread(target=run, daemon=True)
-    webthread.start()
-
-    try:
-        while(True):
-            time.sleep(1000)
-    except KeyboardInterrupt:
-        exit(0)
+    app.run(host='0.0.0.0', port=5000)

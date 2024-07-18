@@ -8,12 +8,23 @@ def getReserve():
         response = requests.get(url)
         bookList = response.json()
     except:
-        return False
+        return [{}, {}]
     
     return bookList
 
+def getFine():
+    try:
+        url = f'{BASE_URL}/fines'
+        response = requests.get(url)
+        fineList = response.json()
+    except:
+        return {}
+    
+    return fineList
+
 def main():
     print(getReserve())
+    print(getFine())
 
 if __name__ == '__main__':
     main()
