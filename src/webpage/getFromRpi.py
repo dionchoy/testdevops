@@ -4,12 +4,12 @@ import time
 import readWriteBooks
 import removeReserved
 import calcFine
-import userPasswordFine
+import userInfo
 
 def getReserve(BASE_URL):
     try:
         url = f'{BASE_URL}'
-        response = requests.get(url)
+        response = requests.get(url, timeout=1)
         bookList = response.json()
 
         if len(bookList[list(bookList.keys())[0]][0]) == 2: #Test borrowed Book format
@@ -28,9 +28,9 @@ def getReserve(BASE_URL):
 
     try:
         url = f'{BASE_URL}/finepaid'
-        response = requests.get(url)
+        response = requests.get(url, timeout=1)
         id = response.json()
-        userPasswordFine.addFine({id: 0})
+        userInfo.addFine({id: 0})
 
     except:
         pass
@@ -40,7 +40,7 @@ def getReserve(BASE_URL):
         removeReserved.checkReserveOver(data[0])
 
         fineList = calcFine.fining(data[1])
-        userPasswordFine.addFine(fineList)
+        userInfo.addFine(fineList)
 
 def main():
     while(True):

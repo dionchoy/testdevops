@@ -8,28 +8,33 @@
 </head>
 <body>
     <header>
-        <h1>Reserve a Book</h1>
+        <h1>Online Library</h1>
     </header>
-    <div class="signOut">
-        <p>
+
+    <div class="navbar">
+        <div class="reserved">
+            <a href="{{ url_for('reserved') }}">Book List</a>
+        </div>
+        <div class="signOut">
             <div id="name"></div>
             <div id="identity"></div>
+            <div>
             <a href="{{ url_for('index') }}" onclick="logout()">Sign Out</a>
-        </p>
+            </div>
+        </div>
     </div>
-    
+
     <div class="overlay" id="overlay"></div>
     <div class="overlay-box" id="overlay-box">
         <h2 id="chosenBook"></h2>
-        <p>
-            <a href="{{ url_for('about') }}">Link to About Page </a>
-        </p>
         
         <div id="name" visibility: hidden>
         </div>
         <div id="identity" visibility: hidden>
         </div>
         <div id="reservedBook" visibility: hidden>
+        </div>
+        <div id="id" visibility: hidden>
         </div>
         
         <form id="reservationForm">
@@ -43,12 +48,12 @@
                 
             </div>
             <div class="form-group">
-                <button type="submit" onclick="checkLocation()">Reserve</button>
+                <button type="submit" onclick="checkLocation(event)">Reserve</button>
             </div>
         </form>
         
         <div class="form-group">
-            <button type="cancel" onclick="off()">Continue Browsing</button>
+            <button type="cancel" onclick="off(event)">Continue Browsing</button>
         </div>
 
         <div class="confirmation" id="confirmationMessage">
@@ -62,6 +67,8 @@
         </section>
     </main>
 
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
